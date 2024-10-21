@@ -38,12 +38,18 @@ app.post("/signup", async (req, rsp) => {
     rsp.send(user);
 })
 
-app.post("/login", (req, rsp) => {
-    rsp.send("login");
+app.post("/login", async (req, rsp) => {
     const {email, password} = req.body;
-    const dbRsp = User.findOne({ email: email }, "password");
+    const dbRsp = User.findOne({ "email": email });
+    const user = await dbRsp.exec();
     console.log(req.body);
-    console.log(dbRsp);
+    console.log(user)
+    if (user.password === password) {
+        console.log(user._id)
+        rsp.send(user._id);
+    } else {
+        rsp.send("user not found")
+    }
 })
 
 app.listen(port, ()=>{
