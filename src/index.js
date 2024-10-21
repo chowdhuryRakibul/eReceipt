@@ -24,17 +24,17 @@ app.post("/",(req, rsp) => {
 
 // User model
 const User = mongoose.model('User', {
-    email: { type: String },
-    password: { type: String }
+    email: { type: String, required: true },
+    password: { type: String, required: true }
 });
 
 // Receipt model
 const Receipt = mongoose.model('Receipt', {
-    user: { type: String },
+    user: { type: String, required: true },
     vendor: { type: String },
     address: { type: String },
     phone: { type: String },
-    date: { type: String },
+    date: { type: Date, default: Date() }, // Date: 2024-10-25THH:MM:SS.MMMZ
     items: []
 });
 
@@ -74,6 +74,13 @@ app.post("/:id/postReceipt", async (req, rsp) => {
     })
     receipt.save();
     rsp.send(receipt);
+})
+
+app.post("/:id/getReceipt", async (req, rsp) => {
+    const dbRsp = Receipt.find({ "user": req.params.id });
+    const receipts = await dbRsp.exec();
+    console.log(receipts)
+    rsp.send(receipts);
 })
 
 app.listen(port, ()=>{
