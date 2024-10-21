@@ -28,6 +28,16 @@ const User = mongoose.model('User', {
     password: { type: String }
 });
 
+// Receipt model
+const Receipt = mongoose.model('Receipt', {
+    user: { type: String },
+    vendor: { type: String },
+    address: { type: String },
+    phone: { type: String },
+    date: { type: String },
+    items: []
+});
+
 app.post("/signup", async (req, rsp) => {
     const {email, password} = req.body;
     const user = new User({
@@ -50,6 +60,20 @@ app.post("/login", async (req, rsp) => {
     } else {
         rsp.send("user not found")
     }
+})
+
+app.post("/:id/postReceipt", async (req, rsp) => {
+    const {vendor, address, phone, date, items} = req.body;
+    const receipt = new Receipt({
+        user: req.params.id,
+        vendor: vendor,
+        address: address,
+        phone: phone,
+        date: date,
+        items: items
+    })
+    receipt.save();
+    rsp.send(receipt);
 })
 
 app.listen(port, ()=>{
