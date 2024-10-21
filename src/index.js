@@ -28,6 +28,15 @@ const User = mongoose.model('User', {
     password: { type: String, required: true }
 });
 
+
+/******************************************
+TODO: change this to
+const Receipt = mongoose.model('Receipt', {
+    user: { type: String, required: true },
+    invoices: []
+});
+*******************************************/
+
 // Receipt model
 const Receipt = mongoose.model('Receipt', {
     user: { type: String, required: true },
