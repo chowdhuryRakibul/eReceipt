@@ -2,13 +2,10 @@ const express = require('express');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
-// const User = require("mongodb")
 
-mongoose.connect("mongodb://localhost:27017/beyondReceipt")
-.then(()=>{
+mongoose.connect("mongodb://localhost:27017/beyondReceipt").then(()=>{
     console.log('mongoose connected');
-})
-.catch((e)=>{
+}).catch((e)=>{
     console.log('failed');
 })
 
@@ -21,30 +18,16 @@ app.post("/",(req, rsp) => {
     rsp.send("login");
 });
 
-
 // User model
 const User = mongoose.model('User', {
     email: { type: String, required: true },
     password: { type: String, required: true }
 });
 
-
-/******************************************
-TODO: change this to
-const Receipt = mongoose.model('Receipt', {
-    user: { type: String, required: true },
-    invoices: []
-});
-*******************************************/
-
 // Receipt model
 const Receipt = mongoose.model('Receipt', {
     user: { type: String, required: true },
-    vendor: { type: String },
-    address: { type: String },
-    phone: { type: String },
-    date: { type: Date, default: Date() }, // Date: 2024-10-25THH:MM:SS.MMMZ
-    items: []
+    receipts: []
 });
 
 app.post("/signup", async (req, rsp) => {
@@ -72,22 +55,27 @@ app.post("/login", async (req, rsp) => {
 })
 
 app.post("/:id/postReceipt", async (req, rsp) => {
-    const {vendor, address, phone, date, items} = req.body;
-    const receipt = new Receipt({
-        user: req.params.id,
-        vendor: vendor,
-        address: address,
-        phone: phone,
-        date: date,
-        items: items
-    })
-    receipt.save();
-    rsp.send(receipt);
+    const userHasReceipt = await Receipt.exists({ user: req.params.id }).exec();
+
+    if (userHasReceipt === null) {
+        // insert the first receipt
+        console.log("inserting the first receipt")
+        const receipt = new Receipt({
+            user: req.params.id,
+            receipts: req.body
+        })
+        receipt.save();
+        rsp.send(receipt);
+    } else {
+        console.log("previous receipt found")
+        // append to the existing list
+        const newReceipt = await Receipt.updateOne({user: req.params.id}, {$push: {receipts: req.body}}).exec();
+        rsp.send(newReceipt);
+    }
 })
 
 app.post("/:id/getReceipt", async (req, rsp) => {
-    const dbRsp = Receipt.find({ "user": req.params.id });
-    const receipts = await dbRsp.exec();
+    const receipts = await Receipt.find({ "user": req.params.id }).exec();
     console.log(receipts)
     rsp.send(receipts);
 })
