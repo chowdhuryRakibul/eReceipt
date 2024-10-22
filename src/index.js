@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 const { isEmail } = require('validator');
 
-mongoose.connect("mongodb://localhost:27017/beyondReceipt").then(()=>{
+mongoose.connect("mongodb+srv://rakibul:abcd1234@cluster0.xp5ne.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0").then(()=>{
     console.log('mongoose connected');
 }).catch((e)=>{
     console.log('failed');
@@ -74,7 +74,7 @@ app.post("/:id/postReceipt", async (req, rsp) => {
     }
 })
 
-app.post("/:id/getReceipt", async (req, rsp) => {
+app.get("/:id/getReceipt", async (req, rsp) => {
     const receipts = await Receipt.find({ "user": req.params.id }).exec();
     console.log(receipts)
     rsp.send(receipts);
