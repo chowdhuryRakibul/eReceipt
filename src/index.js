@@ -13,7 +13,7 @@ app.use(express.json())
 
 const port = process.env.PORT || 3000;
 
-app.post("/",(req, rsp) => {
+app.get("/",(req, rsp) => {
     rsp.send("login");
 });
 
